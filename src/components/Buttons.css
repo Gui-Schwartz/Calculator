@@ -1,5 +1,3 @@
-
-
 .buttons-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr); 
@@ -61,7 +59,7 @@
     transform: scale(0.95); 
 }
 .btn-system {
-    background-color: #A5A5A5; 
-    color: black;
+    background-color: #707070;  
+    color: rgb(255, 255, 255);
     font-size: 1.5em;
 }

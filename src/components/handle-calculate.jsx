@@ -70,7 +70,11 @@ const processCustomOperators = (expression) => {
 };
 
 
-export const HandleCalculate = ({ variables, lastOperationStateRef }) => {
+export const HandleCalculate = ({ 
+  variables, 
+  lastOperationStateRef,
+  historyRef 
+}) => {
   const { expression, setExpression } = variables;
 
   let expressionToCalculate = expression.replace(/x/g, '*').replace(/,/g, '.');
@@ -83,13 +87,24 @@ export const HandleCalculate = ({ variables, lastOperationStateRef }) => {
   }
 
   expressionToCalculate = sanitizeExpression(expressionToCalculate);
+  
+  if (/[+\-*/]$/.test(expressionToCalculate)) {
+    setExpression("Error");
+    return;
+  }
 
   try {
     const result = math.evaluate(expressionToCalculate);
+    if (historyRef) {
+      const cleanExpression = expression.replace(/\s+/g, '');
+      historyRef.current = [...historyRef.current, `${cleanExpression} = ${result}`];
+    }
     lastOperationStateRef.current.lastResult = result;
     lastOperationStateRef.current._justEvaluated = true;
+
     const cleanExpression = expression.replace(/\s+/g, '');
     const parts = cleanExpression.match(/(.+)([+\-*/])(-?\d+(?:[.,]\d+)?|\d+)$/);
+    
     if (parts) {
       lastOperationStateRef.current.lastOperator = parts[2];
       lastOperationStateRef.current.lastOperand = parts[3].replace(',', '.');
@@ -101,5 +116,4 @@ export const HandleCalculate = ({ variables, lastOperationStateRef }) => {
     setExpression("Error");
   }
 };
-
 export default HandleCalculate;

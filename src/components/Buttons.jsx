@@ -1,4 +1,5 @@
 import './Buttons.css'
+import { Plus, Minus, Divide, X, Equal, Percent, Delete, Calculator} from 'lucide-react';
 
 export const buttons = [
     // PRIMEIRA LINHA
@@ -33,6 +34,16 @@ export const buttons = [
 ]
 
 const Buttons = ({onButtonClick, onACMouseDown,  onACMouseUp, systemButtonRef}) => { 
+    const iconMap = {
+        "+": <Plus size={30} />,
+        "-": <Minus size={30} />,
+        "*": <X size={30} />,
+        "/": <Divide size={30} />,
+        "=": <Equal size={30} />,
+        "%": <Percent size={30} />,
+        "AC": <Delete size={30} />,
+        "option": <Calculator size={30}/>
+    };
     
     return (
         <>
@@ -52,11 +63,15 @@ const Buttons = ({onButtonClick, onACMouseDown,  onACMouseUp, systemButtonRef}) 
                         className={classes}
                         onMouseDown={btn.id === 'btn-ac' ? onACMouseDown : undefined}
                         onMouseUp={btn.id === 'btn-ac' ? onACMouseUp : undefined}
-                        onClick={() => onButtonClick(btn.value, btn.type)}
+                        onClick={(e) => { 
+                            onButtonClick(btn.value, btn.type);
+                            e.currentTarget.blur();
+                        }}
                         ref={btn.id === 'btn-option' ? systemButtonRef : null}
+                        
                         >
-                        {btn.value}
-                        </button>
+                        {iconMap[btn.value] || btn.value}
+                    </button>
 
                 );
             })}

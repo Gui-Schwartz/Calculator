@@ -2,9 +2,9 @@ import React from "react";
 import './system-menu.css';
 
 const optionButtons = [
-  { value: "basic", label: "Básica", selected: true },
-  { value: "scientific", label: "Científica" },
-  { value: "notes", label: "Notas de Cálculo" }
+  { value: "basic", label: "Basic", selected: true },
+  { value: "scientific", label: "Scientific" },
+  { value: "notes", label: "Notes" }
 ];
 
 const SystemButton = React.forwardRef(({ onSelect }, ref) => {
@@ -15,14 +15,13 @@ const SystemButton = React.forwardRef(({ onSelect }, ref) => {
           key={btn.value}
           className={btn.selected ? "selected" : ""}
           onClick={(e) => e.preventDefault()}
-
         >
           {btn.label}
         </button>
       ))}
-
+      
       <div className="switch-container">
-        <span>Conversão</span>
+        <span>Conversion</span>
         <input type="checkbox" className="switch" disabled />
       </div>
     </div>

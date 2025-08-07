@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Buttons from "./Buttons";
 import HandleCalculate from "./handle-calculate";
 import ShowDisplay from "./show-display";
 import SystemButton from "./system-options";
-import * as math from 'mathjs';
+import { History } from "lucide-react";
+import HandleInversion from './handle-inversion';
 
 import "./Display.css";
 import "./Buttons.css";
 
-function canInsertOperator(expression, newOperator) {
+function canInsertOperator(expression, newOperator) { //Verifica se pode adicionar operador 
   const normalize = (op) => op === 'x' ? '*' : op; 
-
 
   const lastChar = normalize(expression.slice(-1));
   const newOp = normalize(newOperator);
@@ -18,15 +18,13 @@ function canInsertOperator(expression, newOperator) {
   const isLastOperator = ['+', '-', '*', '/'].includes(lastChar); 
   const isNewOperator = ['+', '-', '*', '/'].includes(newOp);
 
-  if (isLastOperator && isNewOperator) {
-    
+  if (isLastOperator && isNewOperator) { //Bloqueia em caso de operador duplo
     return false;
   }
   return true;
 }
 
-
-export function formatDisplay(expression) {
+export function formatDisplay(expression) { //Formada o display 
   if (!expression || expression === "") {
     return "0";
   }
@@ -56,7 +54,7 @@ export function formatDisplay(expression) {
       intPart = "-0";
     }
 
-    if (
+    if (                         //Adiciona o ponto de milhar
       !isNaN(intPart) &&
       intPart !== "" &&
       intPart !== "-" &&
@@ -64,7 +62,6 @@ export function formatDisplay(expression) {
     ) {
       intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
-
     return decimalPart !== undefined ? `${intPart},${decimalPart}` : intPart;
   });
 
@@ -72,28 +69,47 @@ export function formatDisplay(expression) {
   return finalResult === "" ? "0" : finalResult;
 }
 
-export const handleButtonClick = ({
+export const handleButtonClick = ({ //Manipula os cliques dos botões
   value,
   type,
   expression,
   setExpression,
   lastOperation,
-  setShowSystem
+  setShowSystem,
+  historyRef
 }) => {
   const operators = ["+", "-", "x", "/"];
   const lastChar = expression.slice(-1);
   const currentLastOpState = lastOperation.current;
 
   if (type === "number" || value === ",") {
-    if (currentLastOpState._justEvaluated) {
-      setExpression(value);
-      currentLastOpState._justEvaluated = false;
-    } else if (expression === "0" && value !== ",") {
-      setExpression(value);
-    } else {
-      setExpression(expression + value);
-    }
-  } else if (type === "operator") {
+  const lastNumberMatch = expression.match(/([+\-x/*])?([^+\-x/*]*)$/);
+  const lastNumber = lastNumberMatch ? lastNumberMatch[2] : "";
+
+  if (value === "," && lastNumber.includes(",")) {
+    return; 
+  }
+
+  const justEvaluated = currentLastOpState._justEvaluated;
+  currentLastOpState._justEvaluated = false;
+
+  const shouldInsertLeadingZero = value === "," && (
+    expression === "" ||
+    expression === "0" ||
+    /[+\-*/(]$/.test(expression)
+  );
+
+  if (shouldInsertLeadingZero) {
+    setExpression(prev => prev + "0,");
+  } else if (justEvaluated && !/[+\-*/]/.test(value)) {
+    setExpression(value === "," ? "0," : value);
+  } else if (expression === "0" && value !== ",") {
+    setExpression(value);
+  } else {
+    setExpression(expression + value);
+  }
+}
+ else if (type === "operator") {
   const normalizedValue = value === 'x' ? '*' : value;
 
   if (!canInsertOperator(expression, normalizedValue)) return;
@@ -119,33 +135,12 @@ export const handleButtonClick = ({
     HandleCalculate({
       variables: { expression: expressionToEvaluate, setExpression },
       lastOperationStateRef: lastOperation,
+      historyRef
     });
     } else if (value === "+/-") {
-      const percentRegex = /(-?\d+(?:,\d*)?)%$/;
-      const matchPercent = expression.match(percentRegex);
+      const newExpression = HandleInversion(expression);
+      setExpression(newExpression);
 
-      if (matchPercent) {
-        const original = matchPercent[1];
-        const parsed = parseFloat(original.replace(',', '.'));
-        const inverted = (-parsed).toString().replace('.', ',');
-        const newExpression = expression.slice(0, -original.length - 1) + inverted + "%";
-        setExpression(newExpression);
-        return;
-      }
-
-      const lastNumberRegex = /(-?\d+(?:,\d*)?)$/;
-      const match = expression.match(lastNumberRegex);
-
-      if (match) {
-          const original = match[1];
-          const parsed = parseFloat(original.replace(',', '.'));
-          const inverted = (-parsed).toString().replace('.', ',');
-
-          const newExpression = expression.slice(0, -original.length) + inverted;
-          setExpression(newExpression);
-      } else if (expression.endsWith("0")) {
-          setExpression("-0");
-      }
     } else if (value === "%") {
       if (!operators.includes(lastChar) && lastChar !== "%") {
         setExpression(expression + "%");
@@ -156,6 +151,7 @@ export const handleButtonClick = ({
       setExpression("0");
       currentLastOpState.lastResult = null;
       currentLastOpState._justEvaluated = false;
+
     }else if(value === "option") {
       window.alert("Oops! This part is still in progress.")
        setShowSystem((prev) => !prev); 
@@ -163,7 +159,8 @@ export const handleButtonClick = ({
     }
   }
 };
-const HandleOperations = () => {
+
+const HandleOperations = () => { //Controla a calculadora
   const [expression, setExpression] = useState("0");
   const lastOperation = useRef({
   lastResult: null,
@@ -174,7 +171,32 @@ const HandleOperations = () => {
   const systemButtonRef = useRef(null);
   const [showSystem, setShowSystem] = useState(false);
   const holdTimer = useRef(null);
-  useEffect(() => {
+  const history = useRef([]);
+  const [showFullHistory, setShowFullHistory] = useState(false);
+  
+  const handleKeyDown = (event) => {       //Manipula cliques do teclado
+  const key = event.key;
+
+  if ((/[\d]/.test(key)) || key === ",") {
+    handleClick(key, "number");
+  } else if (["+", "-", "*", "/"].includes(key)) {
+    handleClick(key, "operator");
+  } else if (key === "x") {
+  handleClick("x", "operator");
+  }else if (key === "Enter" || key === "=") {
+    handleClick("=", "control");
+  } else if (key === "%") {
+    handleClick("%", "control");
+  } else if (key === "Backspace") {
+    if (expression.length > 1) {
+      setExpression(expression.slice(0, -1));
+    } else {
+      setExpression("0");
+    }
+  }
+};
+  
+  useEffect(() => {                                //Manipula o clique do mouse
     const handleClickOutside = (event) => {
       if (
         systemButtonRef.current &&
@@ -193,7 +215,15 @@ const HandleOperations = () => {
     };
   }, [showSystem]);
 
-const handleACMouseDown = () => { 
+  useEffect(() => {                                  //Manipula o clique do teclado
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [expression]);
+
+const handleACMouseDown = () => {            //Apaga tudo
   holdTimer.current = setTimeout(() => {
     setExpression("0");
     lastOperation.current.lastResult = null;
@@ -201,7 +231,7 @@ const handleACMouseDown = () => {
   }, 600); 
 };
 
-const handleACMouseUp = () => { 
+const handleACMouseUp = () => {               //Apaga o último
   if (holdTimer.current) {
     clearTimeout(holdTimer.current);
     holdTimer.current = null;
@@ -214,31 +244,61 @@ const handleACMouseUp = () => {
   }
 };
 
-
-  const handleClick = (value, type) => {
+  const handleClick = (value, type) => {        //Callback dos botões
     handleButtonClick({
       value,
       type,
       expression,
       setExpression,
       lastOperation,
-      setShowSystem
+      setShowSystem,
+      historyRef: history
     });
   };
 
   return (
-    <>
-      <ShowDisplay expression={expression} />
-      {showSystem && <SystemButton />}
-      <div className="buttons-grid">
-        <Buttons
-          onButtonClick={handleClick}
-          onACMouseDown={handleACMouseDown}
-          onACMouseUp={handleACMouseUp}
-          systemButtonRef={systemButtonRef}
-        />
-      </div>
-    </>
-  );
+  <>
+    <div className="display-header">
+      <button onClick={() => setShowFullHistory(prev => !prev)}>
+        <History size={20} />
+      </button>
+    </div>
+    
+    {history.current.length > 0 && (
+  <div className="last-history-item">
+    {history.current[history.current.length - 1]}
+  </div>
+)}
+
+    <ShowDisplay expression={expression} />
+    {showSystem && <SystemButton />}
+
+    <div className="buttons-grid">
+      <Buttons
+        onButtonClick={handleClick}
+        onACMouseDown={handleACMouseDown}
+        onACMouseUp={handleACMouseUp}
+        systemButtonRef={systemButtonRef}
+      />
+    </div>
+    {showFullHistory && (
+      <div className="history-menu-overlay" onClick={() => setShowFullHistory(false)}>
+        <div className="history-menu" onClick={(e) => e.stopPropagation()}>
+        <ul>
+          {history.current.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+        <button className="clear-history-button" onClick={() => {
+        history.current = [];
+        setShowFullHistory(false);
+      }}>clear</button>
+    </div>
+  </div>
+    )}
+
+  </>
+);
+
 };
 export default HandleOperations;
