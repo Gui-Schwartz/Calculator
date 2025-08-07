@@ -1,0 +1,15 @@
+.display {
+  background-color: #000;
+  color: #fff;
+  font-size: 3rem;
+  padding: 1rem;
+  text-align: right;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  user-select: none;
+  overflow-wrap: break-word;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}

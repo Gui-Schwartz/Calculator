@@ -1,0 +1,67 @@
+
+
+.buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 10px; 
+    padding: 10px; 
+    position: relative;
+}
+
+.btn {
+    width: 70px; 
+    height: 70px; 
+    border-radius: 50%;
+    font-size: 2em;
+    color: white; 
+    border: none;
+    cursor: pointer;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.1s ease-in-out; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+.btn-number {
+    background-color: #333333; 
+    color: white;
+}
+
+.btn-control {
+    background-color: #707070; 
+    color: rgb(255, 255, 255); 
+}
+
+.btn-operator {
+    background-color: #FF9500; 
+    color: white;
+}
+
+.btn-equal {
+    background-color: #FF9500; 
+    color: white;
+}
+
+
+.btn-0 {
+    grid-column: span 2; 
+    border-radius: 35px; 
+    justify-content: flex-start; 
+    padding-left: 25px; 
+}
+
+
+.btn:hover {
+    filter: brightness(1.2); 
+}
+
+.btn:active {
+    filter: brightness(0.8); 
+    transform: scale(0.95); 
+}
+.btn-system {
+    background-color: #A5A5A5; 
+    color: black;
+    font-size: 1.5em;
+}
