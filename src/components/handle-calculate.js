@@ -1,8 +1,6 @@
 import expressionOrganizer from "./organize-expression";
 const handleCalculate = ({ expression, setExpression }) => {
     const calculate = (expressionToCalculate) => {
-        console.log(expressionToCalculate, "expression to calculate")
-
         let calculateExpression = expressionToCalculate.map(index => {
             if (typeof index === "string" && index.startsWith("(-") && index.endsWith(")")) {
                 return (-parseFloat(index.slice(2, -1))).toString()
@@ -15,7 +13,6 @@ const handleCalculate = ({ expression, setExpression }) => {
         let number2
         while (i < calculateExpression.length) {
             let result
-            console.log(i, "index i ")
             let op = calculateExpression[i]
 
             if (op === "*") {
@@ -23,14 +20,12 @@ const handleCalculate = ({ expression, setExpression }) => {
                 number2 = parseFloat(calculateExpression[i + 1])
                 result = number1 * number2
                 calculateExpression.splice(i - 1, 3, result)
-                console.log(calculateExpression, "teste *")
 
             } else if (op === "/") {
                 number1 = parseFloat(calculateExpression[i - 1])
                 number2 = parseFloat(calculateExpression[i + 1])
                 result = number1 / number2
                 calculateExpression.splice(i - 1, 3, result)
-                console.log(calculateExpression, "teste /")
 
             } else if (op === "%") {                              //Feito ajuste, testar
                 number1 = parseFloat(calculateExpression[i - 3]);
@@ -46,7 +41,6 @@ const handleCalculate = ({ expression, setExpression }) => {
                 } else {
                     i++;                                         
                 }
-                console.log(calculateExpression, "teste %");
             } else {
                 i++
             }
@@ -54,7 +48,6 @@ const handleCalculate = ({ expression, setExpression }) => {
         i = 0
         while (i < calculateExpression.length) {
             let result
-            console.log(i, "index loop secundario")
             let op = calculateExpression[i]
 
             if (op === "+") {
@@ -62,15 +55,13 @@ const handleCalculate = ({ expression, setExpression }) => {
                 number2 = parseFloat(calculateExpression[i + 1])
                 result = number1 + number2
                 calculateExpression.splice(i - 1, 3, result)
-                console.log(calculateExpression, "teste +")
 
             } else if (op === "-") {
                 number1 = parseFloat(calculateExpression[i - 1])
                 number2 = parseFloat(calculateExpression[i + 1])
                 result = number1 - number2
                 calculateExpression.splice(i - 1, 3, result)
-                console.log(calculateExpression, "teste -")
-                
+
             } else {
                 i++
             }

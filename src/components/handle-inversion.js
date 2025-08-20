@@ -10,9 +10,7 @@ const handleInversion = ({ expression, setExpression }) => {
   else {  //Se não tiver parênteses coloca entre parênteses e adiciona o sinal de menos
     last = `(-${last})`;
   }
-
-  // substitui o último index da expressão
-  parts[parts.length - 1] = last;
+  parts[parts.length - 1] = last;  // substitui o último index da expressão
 
   const newExpression = parts.join("");
   return setExpression(newExpression);

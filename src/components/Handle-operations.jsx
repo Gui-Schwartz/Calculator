@@ -47,20 +47,17 @@ export const handleButtonClick = ({ //Manipula os cliques dos botões, adiciona 
   } else if (type === "control") {
     if (value === "=") {
       const result = handleCalculate({ expression, setExpression });
-      console.log(result, "result ")
       addHistory(setHistory, expression, result)
 
     } else if (value === "+/-") {
       handleInversion({ expression, setExpression });
 
     } else if (value === "%") {
-      console.log(expression)
       setExpression(expression + value);
 
     }
   } else if (type === "system") {
     if (value === "AC") {
-      console.log(expression)
       setExpression("0");
       currentLastOpState.lastResult = null;
       currentLastOpState._justEvaluated = false;
