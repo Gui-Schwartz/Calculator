@@ -1,8 +1,6 @@
-export const addToHistory = (historyRef,expression, result) =>{
+const addHistory = (setHistory, expression, result) =>{
     const newEntry = `${expression} = ${result}`;
-    historyRef.current = [...historyRef.current, newEntry];
+    setHistory(prev=>[...prev, newEntry])
+    
 }
-
-export const cleanHistory = (historyRef) =>{
-    historyRef.current = [];
-}
+export default addHistory    // mexer para usar useState e não useRef

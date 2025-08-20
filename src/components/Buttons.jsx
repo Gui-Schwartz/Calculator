@@ -2,31 +2,31 @@ import './Buttons.css'
 import { Plus, Minus, Divide, X, Equal, Percent, Delete, Calculator} from 'lucide-react';
 
 export const buttons = [
-    // PRIMEIRA LINHA
+    //Primeira linha
     { id: 'btn-ac', value: 'AC', type: "control" },
     { id: 'btn-sign', value: '+/-', type: "control" },
     { id: 'percentage', value: '%', type: "control" },
     { id: 'divider', value: '/', type: "operator" }, 
 
-    // SEGUNDA LINHA
+    //Segunda linha
     { id: 'btn-7', value: '7', type: "number" },
     { id: 'btn-8', value: '8', type: "number" },
     { id: 'btn-9', value: "9", type: "number" },
-    { id: 'multiplier', value: 'x', type: "operator" }, 
+    { id: 'multiplier', value: '*', type: "operator" }, 
 
-    // TERCEIRA LINHA
+    //Terceira linha
     { id: 'btn-4', value: '4', type: "number" },
     { id: 'btn-5', value: '5', type: "number" },
     { id: 'btn-6', value: '6', type: "number" },
     { id: 'subtraction', value: '-', type: "operator" },
 
-    // QUARTA LINHA
+    //Quarta linha
     { id: 'btn-1', value: '1', type: "number" },
     { id: 'btn-2', value: '2', type: "number" },
     { id: 'btn-3', value: '3', type: "number" },
     { id: 'sum', value: '+', type: "operator" },
 
-    // QUINTA LINHA
+    //Quinta linha 
     { id: 'btn-option', value: 'option', type: "system" },
     { id: 'btn-0', value: '0', type: "number" },
     { id: 'btn-comma', value: ',', type: "number" }, 
@@ -67,8 +67,7 @@ const Buttons = ({onButtonClick, onACMouseDown,  onACMouseUp, systemButtonRef}) 
                             onButtonClick(btn.value, btn.type);
                             e.currentTarget.blur();
                         }}
-                        ref={btn.id === 'btn-option' ? systemButtonRef : null}
-                        
+                        ref={btn.id === 'btn-option' ? systemButtonRef : null}    
                         >
                         {iconMap[btn.value] || btn.value}
                     </button>
